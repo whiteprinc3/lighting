@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>дыхание грома | Thunder Breathing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Montserrat & Cinzel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        thunder: {
+                            yellow: '#FFE600',
+                            gold: '#FFB800',
+                            amber: '#FF8800',
+                            blue: '#00F0FF',
+                            darkBg: '#090A10',
+                            cardBg: '#11131F',
+                            border: '#2A2E45'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'glow-yellow': '0 0 25px rgba(255, 230, 0, 0.4)',
+                        'glow-gold': '0 0 35px rgba(255, 184, 0, 0.5)',
+                        'glow-blue': '0 0 25px rgba(0, 240, 255, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #090A10;
+            color: #E2E8F0;
+            overflow-x: hidden;
+        }
+
+        /* Lightning Flash Animation */
+        @keyframes thunderFlash {
+            0%, 90%, 100% { opacity: 0; }
+            92% { opacity: 0.12; }
+            93% { opacity: 0.7; }
+            94% { opacity: 0.15; }
+            96% { opacity: 0.8; }
+        }
+
+        .thunder-flash-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(255,230,0,0.25) 0%, rgba(0,240,255,0.15) 40%, transparent 80%);
+            pointer-events: none;
+            z-index: 1;
+            animation: thunderFlash 7s infinite;
+        }
+
+        /* Glowing text gradient */
+        .text-thunder-gradient {
+            background: linear-gradient(135deg, #FFF59D 0%, #FFE600 50%, #FF8800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090A10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB800;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFE600;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(17, 19, 31, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 230, 0, 0.15);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 230, 0, 0.4);
+        }
+
+        #lightning-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between">
+
+    <!-- Canvas Background -->
+    <canvas id="lightning-canvas"></canvas>
+    <div class="thunder-flash-bg"></div>
+
+    <header class="sticky top-0 z-50 glass-panel border-b border-thunder-yellow/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="switchTab('main')">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-thunder-amber via-thunder-yellow to-thunder-blue p-[2px] shadow-glow-yellow transition-transform duration-300 group-hover:scale-110">
+                        <div class="w-full h-full bg-thunder-darkBg rounded-full flex items-center justify-center">
+                            <i class="fa-solid font-bold fa-bolt text-thunder-yellow text-2xl group-hover:animate-bounce"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-cinzel text-xl sm:text-2xl font-black text-thunder-gradient block leading-none lowercase">дыхание грома</span>
+                        <span class="text-[10px] tracking-widest text-thunder-blue uppercase font-semibold">Kaminari no kokyū</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-3">
+                    <button onclick="switchTab('main')" id="nav-main" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-thunder-yellow bg-thunder-yellow/10 border border-thunder-yellow/30 shadow-glow-yellow">
+                        <i class="fa-solid fa-house"></i> Главная
+                    </button>
+                    <button onclick="switchTab('rankup')" id="nav-rankup" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10">
+                        <i class="fa-solid fa-angles-up"></i> Система повышений
+                    </button>
+                    <button onclick="switchTab('rules')" id="nav-rules" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10">
+                        <i class="fa-solid fa-scroll"></i> Регламент
+                    </button>
+                    <button onclick="switchTab('roster')" id="nav-roster" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10">
+                        <i class="fa-solid fa-users"></i> Состав
+                    </button>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-md text-thunder-yellow hover:bg-thunder-cardBg focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-thunder-yellow/20 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('main'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-thunder-yellow bg-thunder-yellow/10 flex items-center gap-3">
+                <i class="fa-solid fa-house"></i> Главная
+            </button>
+            <button onclick="switchTab('rankup'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10 flex items-center gap-3">
+                <i class="fa-solid fa-angles-up"></i> Система повышений
+            </button>
+            <button onclick="switchTab('rules'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10 flex items-center gap-3">
+                <i class="fa-solid fa-scroll"></i> Регламент
+            </button>
+            <button onclick="switchTab('roster'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-thunder-yellow hover:bg-thunder-yellow/10 flex items-center gap-3">
+                <i class="fa-solid fa-users"></i> Состав
+            </button>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- TAB 1: MAIN PAGE -->
+        <div id="tab-main" class="tab-content space-y-16">
+            <!-- Hero Section -->
+            <section class="relative rounded-3xl overflow-hidden glass-panel p-8 sm:p-12 lg:p-16 border border-thunder-yellow/30 shadow-glow-yellow text-center flex flex-col items-center justify-center min-h-[480px]">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-thunder-yellow/10 via-transparent to-transparent"></div>
+                
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs sm:text-sm font-semibold uppercase tracking-widest mb-6 animate-pulse">
+                    <i class="fa-solid fa-bolt"></i> Истребители Демонов
+                </div>
+
+                <h1 class="font-cinzel text-4xl sm:text-6xl lg:text-7xl font-black text-thunder-gradient mb-6 tracking-wider lowercase drop-shadow-[0_5px_15px_rgba(255,230,0,0.4)]">
+                    дыхание грома
+                </h1>
+
+                <p class="max-w-2xl text-lg sm:text-2xl text-gray-300 font-medium italic mb-8">
+                    «Молниеносная скорость, сокрушительный удар. Один взмах клинка, решающий всё.»
+                </p>
+
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button onclick="switchTab('rankup')" class="px-8 py-4 rounded-xl bg-gradient-to-r from-thunder-gold to-thunder-yellow text-black font-extrabold text-base uppercase tracking-wider hover:shadow-glow-gold hover:scale-105 transition-all duration-300 flex items-center gap-3">
+                        <i class="fa-solid fa-bolt"></i> Система повышений
+                    </button>
+                    <button onclick="switchTab('rules')" class="px-8 py-4 rounded-xl glass-panel text-thunder-yellow font-bold text-base uppercase tracking-wider hover:bg-thunder-yellow/20 hover:scale-105 transition-all duration-300 flex items-center gap-3">
+                        <i class="fa-solid fa-scroll"></i> Регламент
+                    </button>
+                </div>
+            </section>
+
+            <!-- 6 Forms Section -->
+            <section class="space-y-8">
+                <div class="text-center">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-cinzel text-thunder-gradient">ШЕСТЬ ФОРМ ДЫХАНИЯ ГРОМА</h2>
+                    <p class="text-gray-400 mt-2">Боевые искусства, передающиеся из поколения в поколение</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ПЕРВАЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Молниеносный гром и вспышка</h3>
+                        <p class="text-gray-400 text-sm mb-4">Ichi no kata: Hekireki Issen. Мечник совершает молниеносный рывок вперед и обезглавливает противника одним движением.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Вариации: Шестикратная, Восьмикратная, Бог Грома</span>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ВТОРАЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Шаровая молния</h3>
+                        <p class="text-gray-400 text-sm mb-4">Ni no kata: Inadama. Серия из пяти непрерывных электрических дугообразных атак вокруг пользователя.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Ближний радиус</span>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ТРЕТЬЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Гудящий рой молний</h3>
+                        <p class="text-gray-400 text-sm mb-4">San no kata: Kairyu Inazuma. Атака волной электрических разрядов со всех направлений во врага.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Массовый урон</span>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ЧЕТВЕРТАЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Удар грома</h3>
+                        <p class="text-gray-400 text-sm mb-4">Shi no kata: Enrai. Генерация мощных молниеносных разрядов на расстоянии от мечника.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Дальний бой</span>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ПЯТАЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Извивающаяся молния</h3>
+                        <p class="text-gray-400 text-sm mb-4">Go no kata: Raitei Jikaku. Мощная молниеносная атака сверху вниз, сопровождающаяся треском и высокой температурой.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Пробивающий урон</span>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl hover:border-thunder-yellow transition-all duration-300 relative overflow-hidden group">
+                        <span class="text-thunder-yellow font-cinzel text-sm font-bold tracking-widest block mb-1">ШЕСТАЯ ФОРМА</span>
+                        <h3 class="text-xl font-bold text-white mb-3">Электрический всплеск</h3>
+                        <p class="text-gray-400 text-sm mb-4">Roku no kata: Dengeki Todoroki. Непрерывный шторм из молний, поражающий всё в радиусе действия.</p>
+                        <span class="inline-block px-3 py-1 bg-thunder-yellow/10 border border-thunder-yellow/30 text-thunder-yellow text-xs rounded-full">Абсолютная защита/Атака</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="tab-rankup" class="tab-content hidden space-y-16">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h1 class="text-3xl sm:text-5xl font-black font-cinzel text-thunder-gradient">СИСТЕМА ПОВЫШЕНИЯ</h1>
+                <p class="text-gray-300">Пройди путь от ученика до элитного мечника. Каждая ступень требует баллов и соблюдения временного отката.</p>
+            </div>
+
+            <!-- Main Rank Progression -->
+            <section class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-thunder-yellow/30 pb-3">
+                    <i class="fa-solid fa-bolt text-thunder-yellow text-2xl"></i>
+                    <h2 class="text-2xl font-bold font-cinzel text-white">Основная система повышения (От Seito до Hinoe)</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-yellow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-yellow uppercase">Старт</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-yellow/10 text-thunder-yellow text-[10px] font-bold">Откат: 1 день</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Seito → Midzunoto</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-check text-thunder-yellow mr-1"></i> Пройти фин.отбор
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-yellow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-yellow uppercase">Ранг I</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-yellow/10 text-thunder-yellow text-[10px] font-bold">Откат: 1 день</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Midzunoto → Midzunoe</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-yellow mr-1"></i> Требуется: <b class="text-white">10 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-yellow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-yellow uppercase">Ранг II</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-yellow/10 text-thunder-yellow text-[10px] font-bold">Откат: 1 день</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Midzunoe → Kanoto</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-yellow mr-1"></i> Требуется: <b class="text-white">15 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-yellow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-yellow uppercase">Ранг III</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-yellow/10 text-thunder-yellow text-[10px] font-bold">Откат: 1 день</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Kanoto → Kanoe</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-yellow mr-1"></i> Требуется: <b class="text-white">20 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-gold flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-gold uppercase">Ранг IV</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-gold/10 text-thunder-gold text-[10px] font-bold">Откат: 2 дня</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Kanoe → Tsuchinoto</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-gold mr-1"></i> Требуется: <b class="text-white">25 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-gold flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-gold uppercase">Ранг V</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-gold/10 text-thunder-gold text-[10px] font-bold">Откат: 2 дня</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Tsuchinoto → Tsuchinoe</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-gold mr-1"></i> Требуется: <b class="text-white">30 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-amber flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-amber uppercase">Ранг VI</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-amber/10 text-thunder-amber text-[10px] font-bold">Откат: 3 дня</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Tsuchinoe → Hinoto</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-amber mr-1"></i> Требуется: <b class="text-white">35 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-thunder-amber flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-thunder-amber uppercase">Ранг VII</span>
+                                <span class="px-2 py-0.5 rounded bg-thunder-amber/10 text-thunder-amber text-[10px] font-bold">Откат: 3 дня</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Hinoto → Hinoe</h3>
+                            <div class="mt-3 p-2.5 rounded-lg bg-thunder-darkBg/60 text-xs text-gray-300 border border-thunder-border">
+                                <i class="fa-solid fa-star text-thunder-amber mr-1"></i> Требуется: <b class="text-white">40 баллов</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Senior Rank Progression -->
+            <section class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-thunder-blue/30 pb-3">
+                    <i class="fa-solid fa-crown text-thunder-blue text-2xl"></i>
+                    <h2 class="text-2xl font-bold font-cinzel text-white">СИСТЕМА ПОВЫШЕНИЯ ДО СТАРШЕГО СОСТАВА (От Hinoe до Kinoe)</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-blue/40 shadow-glow-blue relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 rounded bg-thunder-blue/20 text-thunder-blue text-xs font-bold uppercase">Элитный ранг</span>
+                            <span class="text-xs text-gray-400 font-semibold"><i class="fa-solid fa-clock mr-1"></i> Откат: 3 дня</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Hinoe → Kinoto</h3>
+                        <ul class="text-sm text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-star text-thunder-blue"></i> <b>45 баллов</b></li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-user-check text-thunder-blue"></i> <b>Одобрение от цугуко грома</b></li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-yellow/50 shadow-glow-yellow relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-3 py-1 rounded bg-thunder-yellow/20 text-thunder-yellow text-xs font-bold uppercase">Высший состав</span>
+                            <span class="text-xs text-gray-400 font-semibold"><i class="fa-solid fa-clock mr-1"></i> Откат: 3 дня</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Kinoto → Kinoe</h3>
+                        <ul class="text-sm text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-star text-thunder-yellow"></i> <b>50 баллов</b></li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-skull-crossbones text-thunder-yellow"></i> <b>Одобрение от хаширы грома</b></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Points Table -->
+            <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-thunder-yellow/20 space-y-6">
+                <div>
+                    <h3 class="text-2xl font-bold font-cinzel text-thunder-gradient mb-1">Способы получения баллов</h3>
+                    <p class="text-xs text-gray-400">Выполняйте задания для продвижения по рангам</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Убийство демона <span class="text-[10px] text-thunder-yellow block">(10 на ранг)</span></span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">1 балл</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Прослушать лекцию</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">4 балла</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Захват точек <span class="text-[10px] text-thunder-yellow block">(4 точки = 2 балла)</span></span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">2 балла</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Участие в МП (Тренировки и т.п.)</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">4 балла</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Участие в событии фракции</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">5 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Пройти проверку устава <span class="text-[10px] text-thunder-yellow block">(1 на ранг)</span></span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">4 балла</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Участие в ГРП</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">10 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Выполнить поручение столпа</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">10 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Выполнить поручение цугуко</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">8 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Проведение тренировки (состав)</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">6 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Помощь дыханию Джигоро <span class="text-[10px] text-thunder-yellow block">(1 на ранг)</span></span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">3 балла</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center">
+                        <span>Захват важной точки</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">5 баллов</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-thunder-darkBg/80 border border-thunder-border flex justify-between items-center sm:col-span-2 lg:col-span-3">
+                        <span>Поручение от лидера организации</span>
+                        <span class="font-bold text-thunder-yellow bg-thunder-yellow/10 px-2.5 py-1 rounded">13 баллов</span>
+                    </div>
+                </div>
+
+                <!-- Recommendations Block -->
+                <div class="mt-6 pt-6 border-t border-thunder-border">
+                    <h4 class="text-lg font-bold font-cinzel text-thunder-gold mb-3"><i class="fa-solid fa-award mr-2"></i>Рекомендации</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div class="p-3 rounded-xl bg-thunder-gold/10 border border-thunder-gold/30">
+                            <span class="block text-gray-400">1 уровня</span>
+                            <span class="font-bold text-thunder-gold text-base">6 баллов</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-thunder-gold/10 border border-thunder-gold/30">
+                            <span class="block text-gray-400">2 уровня</span>
+                            <span class="font-bold text-thunder-gold text-base">12 баллов</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-thunder-yellow/20 border border-thunder-yellow shadow-glow-yellow">
+                            <span class="block text-gray-300 font-semibold">3 уровня</span>
+                            <span class="font-extrabold text-thunder-yellow text-sm block mt-0.5">СКИП РАНГА</span>
+                            <span class="text-[10px] text-gray-400 block">(Баллы не требуются)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="tab-rules" class="tab-content hidden space-y-12">
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h1 class="text-3xl sm:text-5xl font-black font-cinzel text-thunder-gradient">РЕГЛАМЕНТ</h1>
+                <p class="text-gray-300 leading-relaxed text-sm sm:text-base">
+                    Документ, описывающий правила и порядок выполнения определенных действий или процессов в дыхании. Устанавливает стандарты, определяет последовательность шагов и назначает ответственных лиц.
+                </p>
+            </div>
+
+            <!-- Definition Blocks -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-thunder-yellow">
+                    <div class="flex items-center gap-3 text-thunder-yellow font-cinzel font-bold text-lg mb-3">
+                        <i class="fa-solid fa-book-bookmark text-xl"></i>
+                        <span>Определение регламента</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                        Это документ, описывающий правила и порядок выполнения определенных действий или процессов. Он устанавливает стандарты, определяет последовательность шагов, назначает ответственных лиц и может включать временные рамки для каждой стадии.
+                    </p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-thunder-gold">
+                    <div class="flex items-center gap-3 text-thunder-gold font-cinzel font-bold text-lg mb-3">
+                        <i class="fa-solid fa-bullseye text-xl"></i>
+                        <span>Цель регламента</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                        Он координирует деятельность дыхания грома, в нем описаны инструкции для истребителей, которые они должны соблюдать и выполнять.
+                    </p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-l-thunder-amber">
+                    <div class="flex items-center gap-3 text-thunder-amber font-cinzel font-bold text-lg mb-3">
+                        <i class="fa-solid fa-circle-info text-xl"></i>
+                        <span>Описание регламента</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                        В нём имеется информация об квоте и рангах, множество полезной информации которая находится исключительно в нём.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Online Requirements -->
+            <section class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-thunder-yellow/30 pb-3">
+                    <i class="fa-solid fa-clock text-thunder-yellow text-2xl"></i>
+                    <h2 class="text-2xl font-bold font-cinzel text-white">Онлайн истребителей</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-yellow/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-thunder-yellow uppercase tracking-widest block">Состав</span>
+                                <h3 class="text-xl font-bold text-white">Старший состав</h3>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-thunder-yellow/20 text-thunder-yellow text-xs font-bold border border-thunder-yellow/40">
+                                60 минут в день
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-thunder-darkBg/80 border border-thunder-border">
+                            <h4 class="text-xs font-bold text-thunder-gradient mb-1">Цугуко Грома</h4>
+                            <p class="text-xs text-gray-300">Помимо выполнения недельной квоты, обязаны оказывать активную помощь в работе с личным составом.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-gold/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-thunder-gold uppercase tracking-widest block">Состав</span>
+                                <h3 class="text-xl font-bold text-white">Средний Состав</h3>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-thunder-gold/20 text-thunder-gold text-xs font-bold border border-thunder-gold/40">
+                                60 минут в день
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-thunder-darkBg/80 border border-thunder-border">
+                            <h4 class="text-xs font-bold text-thunder-gold mb-1">Инструктор</h4>
+                            <p class="text-xs text-gray-300">Инструктора, выполняющие обучающую функцию в составе.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-blue/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-thunder-blue uppercase tracking-widest block">Состав</span>
+                                <h3 class="text-xl font-bold text-white">Основной Состав</h3>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-thunder-blue/20 text-thunder-blue text-xs font-bold border border-thunder-blue/40">
+                                60 минут в день
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-thunder-darkBg/80 border border-thunder-border">
+                            <h4 class="text-xs font-bold text-thunder-blue mb-1">Истребитель</h4>
+                            <p class="text-xs text-gray-300">Основной состав дыхания грома, что состоит из обычных истребителей дыхания.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vacation System -->
+            <section class="space-y-6">
+                <div class="flex items-center gap-3 border-b border-thunder-blue/30 pb-3">
+                    <i class="fa-solid fa-umbrella-beach text-thunder-blue text-2xl"></i>
+                    <h2 class="text-2xl font-bold font-cinzel text-white">Система отпусков</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-lg font-bold text-white">Общие правила</h3>
+                                <span class="px-2.5 py-1 rounded bg-thunder-yellow/10 text-thunder-yellow text-xs font-bold">7 дней</span>
+                            </div>
+                            <p class="text-xs text-thunder-yellow mb-3">Отпускные дни не переносятся на следующий месяц и сгорают по его окончании.</p>
+                            <p class="text-xs text-gray-300 mb-3">Каждый член дыхания имеет право на 7 дней отпуска в месяц. Эти дни могут быть использованы для различных целей:</p>
+                            <ul class="text-xs text-gray-400 space-y-1.5 list-disc pl-4">
+                                <li>Отсутствие на обязательных мероприятиях</li>
+                                <li>Доступ к закрытым событиям</li>
+                                <li>Планирование отдыха</li>
+                                <li>Решение личных вопросов</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-lg font-bold text-white">Отсутствие на мероприятиях</h3>
+                                <span class="px-2.5 py-1 rounded bg-thunder-amber/10 text-thunder-amber text-xs font-bold">1 день</span>
+                            </div>
+                            <p class="text-xs text-thunder-amber mb-3">Несогласованное отсутствие может привести к дисциплинарным взысканиям.</p>
+                            <p class="text-xs text-gray-300 mb-3">Если вы не можете присутствовать на обязательном мероприятии, необходимо заранее оформить отпуск на этот день.</p>
+                            <ul class="text-xs text-gray-400 space-y-1.5 list-disc pl-4">
+                                <li>Требуется уважительная причина для отсутствия</li>
+                                <li>Заявка подается не менее чем за 24 часа до мероприятия</li>
+                                <li>Согласование с непосредственным руководством</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-thunder-border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-lg font-bold text-white">Планирование отдыха</h3>
+                                <span class="px-2.5 py-1 rounded bg-thunder-blue/10 text-thunder-blue text-xs font-bold">до 7 дней</span>
+                            </div>
+                            <p class="text-xs text-thunder-blue mb-3">В периоды повышенной активности дыхания, отпуск может быть ограничен.</p>
+                            <p class="text-xs text-gray-300 mb-3">Вы можете использовать отпускные дни для организации продолжительного отдыха.</p>
+                            <ul class="text-xs text-gray-400 space-y-1.5 list-disc pl-4">
+                                <li>Возможность взять отпуск продолжительностью до недели</li>
+                                <li>Заявка подается не менее чем за 24 часа до начала отпуска</li>
+                                <li>Согласование с руководством отряда</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="tab-roster" class="tab-content hidden space-y-10">
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h1 class="text-3xl sm:text-5xl font-black font-cinzel text-thunder-gradient">СОСТАВ ОРГАНИЗАЦИИ</h1>
+                <p class="text-gray-300">Структура мечников, практикующих дыхание грома.</p>
+            </div>
+
+            <!-- Search and Category Filters -->
+            <div class="glass-panel p-4 rounded-2xl border border-thunder-yellow/20 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="roster-search" oninput="filterRoster()" placeholder="Поиск по никнейму..." class="w-full bg-thunder-darkBg border border-thunder-border rounded-xl pl-11 pr-4 py-2.5 text-white focus:outline-none focus:border-thunder-yellow text-sm">
+                </div>
+
+                <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center">
+                    <button onclick="setRosterFilter('all')" id="filter-all" class="roster-filter-btn active px-4 py-2 rounded-xl text-xs font-bold bg-thunder-yellow text-black transition-all">Все составы</button>
+                    <button onclick="setRosterFilter('senior')" id="filter-senior" class="roster-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-thunder-darkBg text-gray-300 hover:text-thunder-yellow border border-thunder-border transition-all">Старший состав</button>
+                    <button onclick="setRosterFilter('middle')" id="filter-middle" class="roster-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-thunder-darkBg text-gray-300 hover:text-thunder-yellow border border-thunder-border transition-all">Средний состав</button>
+                    <button onclick="setRosterFilter('main_squad')" id="filter-main_squad" class="roster-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-thunder-darkBg text-gray-300 hover:text-thunder-yellow border border-thunder-border transition-all">Основной состав</button>
+                </div>
+            </div>
+
+            <div class="space-y-12">
+                <!-- 1. СТАРШИЙ СОСТАВ -->
+                <section class="roster-group space-y-4" id="group-senior">
+                    <div class="flex items-center gap-3 border-b border-thunder-yellow/30 pb-2">
+                        <i class="fa-solid fa-crown text-thunder-yellow text-xl"></i>
+                        <h2 class="text-2xl font-bold font-cinzel text-white">Старший состав</h2>
+                        <span class="text-xs text-gray-400">(Хашира & Цугуко)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Хашира -->
+                        <div class="roster-card glass-panel p-6 rounded-2xl border-2 border-thunder-yellow shadow-glow-yellow relative overflow-hidden" data-category="senior" data-name="august d. graceford">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img src="https://placehold.co/100x100/11131F/FFE600?text=A" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-thunder-yellow object-cover">
+                                    <span class="w-4 h-4 bg-green-500 border-2 border-thunder-darkBg rounded-full absolute bottom-0 right-0" title="В сети"></span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-yellow text-black font-black uppercase tracking-wider">Хашира</span>
+                                    <h3 class="text-lg font-bold text-white mt-1">August D. Graceford</h3>
+                                    <p class="text-xs text-thunder-yellow font-semibold">Лидер направления</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-thunder-border flex justify-between items-center text-xs text-gray-400">
+                                <span><i class="fa-solid fa-bolt text-thunder-yellow mr-1"></i> Столп Грома</span>
+                                <span class="text-green-400 font-semibold">60+ мин/день</span>
+                            </div>
+                        </div>
+
+                        <!-- Цугуко 1 -->
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/50 shadow-glow-gold relative overflow-hidden" data-category="senior" data-name="кайгаку">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img src="https://placehold.co/100x100/11131F/FFB800?text=K" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-thunder-gold object-cover">
+                                    <span class="w-4 h-4 bg-green-500 border-2 border-thunder-darkBg rounded-full absolute bottom-0 right-0" title="В сети"></span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/20 text-thunder-gold font-extrabold uppercase tracking-wider">Цугуко Грома</span>
+                                    <h3 class="text-lg font-bold text-white mt-1">Кайгаку</h3>
+                                    <p class="text-xs text-gray-400">Преемник</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-thunder-border flex justify-between items-center text-xs text-gray-400">
+                                <span><i class="fa-solid fa-shield text-thunder-gold mr-1"></i> Помощь составу</span>
+                                <span class="text-green-400 font-semibold">Активен</span>
+                            </div>
+                        </div>
+
+                        <!-- Цугуко 2 -->
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/50 shadow-glow-gold relative overflow-hidden" data-category="senior" data-name="зеницу агацума">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img src="https://placehold.co/100x100/11131F/FFB800?text=Z" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-thunder-gold object-cover">
+                                    <span class="w-4 h-4 bg-yellow-500 border-2 border-thunder-darkBg rounded-full absolute bottom-0 right-0" title="На задании"></span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/20 text-thunder-gold font-extrabold uppercase tracking-wider">Цугуко Грома</span>
+                                    <h3 class="text-lg font-bold text-white mt-1">Зеницу Агацума</h3>
+                                    <p class="text-xs text-gray-400">Преемник</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-thunder-border flex justify-between items-center text-xs text-gray-400">
+                                <span><i class="fa-solid fa-bolt text-thunder-yellow mr-1"></i> Истребитель</span>
+                                <span class="text-yellow-400 font-semibold">На задании</span>
+                            </div>
+                        </div>
+
+                        <!-- Цугуко 3 -->
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/50 shadow-glow-gold relative overflow-hidden" data-category="senior" data-name="цугуко грома 3">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img src="https://placehold.co/100x100/11131F/FFB800?text=T3" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-thunder-gold object-cover">
+                                    <span class="w-4 h-4 bg-green-500 border-2 border-thunder-darkBg rounded-full absolute bottom-0 right-0" title="В сети"></span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/20 text-thunder-gold font-extrabold uppercase tracking-wider">Цугуко Грома</span>
+                                    <h3 class="text-lg font-bold text-white mt-1">Цугуко Грома</h3>
+                                    <p class="text-xs text-gray-400">Преемник</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-thunder-border flex justify-between items-center text-xs text-gray-400">
+                                <span><i class="fa-solid fa-shield text-thunder-gold mr-1"></i> Помощь составу</span>
+                                <span class="text-green-400 font-semibold">Активен</span>
+                            </div>
+                        </div>
+
+                        <!-- Цугуко 4 -->
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/50 shadow-glow-gold relative overflow-hidden" data-category="senior" data-name="цугуко грома 4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img src="https://placehold.co/100x100/11131F/FFB800?text=T4" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-thunder-gold object-cover">
+                                    <span class="w-4 h-4 bg-green-500 border-2 border-thunder-darkBg rounded-full absolute bottom-0 right-0" title="В сети"></span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/20 text-thunder-gold font-extrabold uppercase tracking-wider">Цугуко Грома</span>
+                                    <h3 class="text-lg font-bold text-white mt-1">Цугуко Грома</h3>
+                                    <p class="text-xs text-gray-400">Преемник</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-thunder-border flex justify-between items-center text-xs text-gray-400">
+                                <span><i class="fa-solid fa-shield text-thunder-gold mr-1"></i> Помощь составу</span>
+                                <span class="text-green-400 font-semibold">Активен</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. СРЕДНИЙ СОСТАВ -->
+                <section class="roster-group space-y-4" id="group-middle">
+                    <div class="flex items-center gap-3 border-b border-thunder-gold/30 pb-2">
+                        <i class="fa-solid fa-graduation-cap text-thunder-gold text-xl"></i>
+                        <h2 class="text-2xl font-bold font-cinzel text-white">Средний состав</h2>
+                        <span class="text-xs text-gray-400">(3 Инструктора)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/30" data-category="middle" data-name="инструктор #1">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/100x100/11131F/FFB800?text=I1" class="w-14 h-14 rounded-full border border-thunder-gold object-cover">
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/10 text-thunder-gold font-bold uppercase">Инструктор</span>
+                                    <h3 class="text-base font-bold text-white mt-1">Инструктор #1</h3>
+                                    <p class="text-xs text-gray-400">Обучающая функция</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-thunder-border flex justify-between text-xs text-gray-400">
+                                <span>Норма: 60 мин/день</span>
+                                <span class="text-green-400">В сети</span>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/30" data-category="middle" data-name="инструктор #2">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/100x100/11131F/FFB800?text=I2" class="w-14 h-14 rounded-full border border-thunder-gold object-cover">
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/10 text-thunder-gold font-bold uppercase">Инструктор</span>
+                                    <h3 class="text-base font-bold text-white mt-1">Инструктор #2</h3>
+                                    <p class="text-xs text-gray-400">Обучающая функция</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-thunder-border flex justify-between text-xs text-gray-400">
+                                <span>Норма: 60 мин/день</span>
+                                <span class="text-green-400">В сети</span>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-6 rounded-2xl border border-thunder-gold/30" data-category="middle" data-name="инструктор #3">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/100x100/11131F/FFB800?text=I3" class="w-14 h-14 rounded-full border border-thunder-gold object-cover">
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-thunder-gold/10 text-thunder-gold font-bold uppercase">Инструктор</span>
+                                    <h3 class="text-base font-bold text-white mt-1">Инструктор #3</h3>
+                                    <p class="text-xs text-gray-400">Обучающая функция</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-thunder-border flex justify-between text-xs text-gray-400">
+                                <span>Норма: 60 мин/день</span>
+                                <span class="text-green-400">В сети</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. ОСНОВНОЙ СОСТАВ -->
+                <section class="roster-group space-y-4" id="group-main_squad">
+                    <div class="flex items-center gap-3 border-b border-thunder-blue/30 pb-2">
+                        <i class="fa-solid fa-users text-thunder-blue text-xl"></i>
+                        <h2 class="text-2xl font-bold font-cinzel text-white">Основной состав</h2>
+                        <span class="text-xs text-gray-400">(5 Истребителей)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="roster-card glass-panel p-5 rounded-2xl border border-thunder-border" data-category="main_squad" data-name="истребитель #1">
+                            <div class="flex items-center gap-3">
+                                <img src="https://placehold.co/80x80/11131F/00F0FF?text=S1" class="w-12 h-12 rounded-full border border-thunder-blue">
+                                <div>
+                                    <span class="text-[10px] text-thunder-blue font-bold uppercase block">Истребитель</span>
+                                    <h4 class="text-sm font-bold text-white">Истребитель #1</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-5 rounded-2xl border border-thunder-border" data-category="main_squad" data-name="истребитель #2">
+                            <div class="flex items-center gap-3">
+                                <img src="https://placehold.co/80x80/11131F/00F0FF?text=S2" class="w-12 h-12 rounded-full border border-thunder-blue">
+                                <div>
+                                    <span class="text-[10px] text-thunder-blue font-bold uppercase block">Истребитель</span>
+                                    <h4 class="text-sm font-bold text-white">Истребитель #2</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-5 rounded-2xl border border-thunder-border" data-category="main_squad" data-name="истребитель #3">
+                            <div class="flex items-center gap-3">
+                                <img src="https://placehold.co/80x80/11131F/00F0FF?text=S3" class="w-12 h-12 rounded-full border border-thunder-blue">
+                                <div>
+                                    <span class="text-[10px] text-thunder-blue font-bold uppercase block">Истребитель</span>
+                                    <h4 class="text-sm font-bold text-white">Истребитель #3</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-5 rounded-2xl border border-thunder-border" data-category="main_squad" data-name="истребитель #4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://placehold.co/80x80/11131F/00F0FF?text=S4" class="w-12 h-12 rounded-full border border-thunder-blue">
+                                <div>
+                                    <span class="text-[10px] text-thunder-blue font-bold uppercase block">Истребитель</span>
+                                    <h4 class="text-sm font-bold text-white">Истребитель #4</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="roster-card glass-panel p-5 rounded-2xl border border-thunder-border" data-category="main_squad" data-name="истребитель #5">
+                            <div class="flex items-center gap-3">
+                                <img src="https://placehold.co/80x80/11131F/00F0FF?text=S5" class="w-12 h-12 rounded-full border border-thunder-blue">
+                                <div>
+                                    <span class="text-[10px] text-thunder-blue font-bold uppercase block">Истребитель</span>
+                                    <h4 class="text-sm font-bold text-white">Истребитель #5</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="relative z-10 glass-panel border-t border-thunder-yellow/20 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-bolt text-thunder-yellow text-xl"></i>
+                <span class="font-cinzel text-base font-black text-thunder-gradient lowercase">дыхание грома</span>
+            </div>
+
+            <p class="text-xs text-gray-400 text-center">
+                © 2026 дыхание грома. Все права защищены.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-thunder-yellow', 'bg-thunder-yellow/10', 'border', 'border-thunder-yellow/30', 'shadow-glow-yellow');
+                btn.classList.add('text-gray-300');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-gray-300');
+                activeBtn.classList.add('text-thunder-yellow', 'bg-thunder-yellow/10', 'border', 'border-thunder-yellow/30', 'shadow-glow-yellow');
+            }
+
+            triggerLightningEffect();
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Roster Filtering logic
+        let currentRosterCategory = 'all';
+
+        function setRosterFilter(category) {
+            currentRosterCategory = category;
+            document.querySelectorAll('.roster-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-thunder-yellow', 'text-black');
+                btn.classList.add('bg-thunder-darkBg', 'text-gray-300');
+            });
+            const activeBtn = document.getElementById(`filter-${category}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-thunder-darkBg', 'text-gray-300');
+                activeBtn.classList.add('bg-thunder-yellow', 'text-black');
+            }
+            filterRoster();
+        }
+
+        function filterRoster() {
+            const searchVal = document.getElementById('roster-search').value.toLowerCase();
+            const cards = document.querySelectorAll('.roster-card');
+
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const name = card.getAttribute('data-name');
+
+                const matchesCategory = (currentRosterCategory === 'all' || category === currentRosterCategory);
+                const matchesSearch = name.includes(searchVal);
+
+                if (matchesCategory && matchesSearch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Toggle visibility of group titles if empty
+            document.querySelectorAll('.roster-group').forEach(group => {
+                const visibleCards = group.querySelectorAll('.roster-card:not(.hidden)');
+                if (visibleCards.length === 0) {
+                    group.classList.add('hidden');
+                } else {
+                    group.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Interactive Lightning Background
+        const canvas = document.getElementById('lightning-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let bolts = [];
+
+        class LightningBolt {
+            constructor(x, y) {
+                this.x = x || Math.random() * canvas.width;
+                this.y = y || 0;
+                this.path = [{x: this.x, y: this.y}];
+                this.generatePath();
+                this.alpha = 1;
+                this.color = Math.random() > 0.3 ? '#FFE600' : '#00F0FF';
+            }
+
+            generatePath() {
+                let curX = this.x;
+                let curY = this.y;
+                while (curY < canvas.height) {
+                    curX += (Math.random() - 0.5) * 40;
+                    curY += Math.random() * 30 + 10;
+                    this.path.push({x: curX, y: curY});
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.path[0].x, this.path[0].y);
+                for (let i = 1; i < this.path.length; i++) {
+                    ctx.lineTo(this.path[i].x, this.path[i].y);
+                }
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = Math.random() * 2 + 1;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 15;
+                ctx.globalAlpha = this.alpha;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            update() {
+                this.alpha -= 0.05;
+            }
+        }
+
+        function triggerLightningEffect() {
+            bolts.push(new LightningBolt());
+            bolts.push(new LightningBolt());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (Math.random() < 0.02) {
+                bolts.push(new LightningBolt());
+            }
+
+            for (let i = bolts.length - 1; i >= 0; i--) {
+                bolts[i].draw();
+                bolts[i].update();
+                if (bolts[i].alpha <= 0) {
+                    bolts.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.onload = function() {
+            animateCanvas();
+        }
+    </script>
+</body>
+</html>
